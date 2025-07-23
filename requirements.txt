@@ -1,0 +1,8 @@
+streamlit
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+# If you decide to use plotly.express in your visualizations:
+# plotly
