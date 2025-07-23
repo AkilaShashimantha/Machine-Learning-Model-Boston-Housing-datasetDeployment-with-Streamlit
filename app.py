@@ -1,10 +1,11 @@
-import streamlit as st [cite: 106]
-import pandas as pd [cite: 107]
-import numpy as np [cite: 108]
-import pickle [cite: 113]
-import matplotlib.pyplot as plt [cite: 109]
-import seaborn as sns [cite: 110]
-from sklearn.metrics import mean_squared_error, r2_score # For model performance metrics
+import streamlit as st
+import pandas as pd
+import numpy as np
+import pickle
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split # Needed for model performance section
 
 # Helper function to load model, scaler, and feature names
 @st.cache_resource # Cache the model loading for efficiency
@@ -19,10 +20,10 @@ def load_model_and_scaler():
             features = pickle.load(features_file)
         return model, scaler, features
     except FileNotFoundError as e:
-        st.error(f"Required file not found: {e}. Please ensure 'model.pkl', 'scaler.pkl', and 'features.pkl' are in the root directory.")
+        st.error(f"Required file not found: {e}. Please ensure 'model.pkl', 'scaler.pkl', and 'features.pkl' are in the root directory and correctly named.")
         st.stop() # Stop the app if crucial files are missing
     except Exception as e:
-        st.error(f"Error loading model, scaler, or features: {e}")
+        st.error(f"Error loading model, scaler, or features: {e}. Ensure they were saved correctly and are not empty/corrupted.")
         st.stop()
 
 model, scaler, feature_names = load_model_and_scaler()
@@ -31,43 +32,43 @@ model, scaler, feature_names = load_model_and_scaler()
 @st.cache_data # Cache the data loading for efficiency
 def load_data():
     try:
-        # Load from the 'data' directory
-        data = pd.read_csv('data/boston_housing.csv')
+        # Load from the 'data' directory. Ensure correct filename: 'BostonHousing.csv'
+        data = pd.read_csv('data/BostonHousing.csv')
         return data
     except FileNotFoundError:
-        st.error("Dataset file (boston_housing.csv) not found in the 'data' directory. Please ensure it's uploaded.")
+        st.error("Dataset file (BostonHousing.csv) not found in the 'data' directory. Please ensure it's uploaded with the correct name.")
         st.stop()
     except Exception as e:
-        st.error(f"Error loading dataset: {e}")
+        st.error(f"Error loading dataset: {e}. Please check the file's integrity and path.")
         st.stop()
 
 df = load_data()
 
 # --- Part 2: Streamlit Application Development ---
 
-# Title and Description [cite: 33, 34]
-st.title("🏡 Boston House Price Prediction App") [cite: 33, 34]
-st.write("This application predicts the median house price in Boston using a trained Machine Learning model. Explore the data, visualize relationships, and get real-time predictions!") [cite: 33, 34]
+# Title and Description
+st.title("🏡 Boston House Price Prediction App")
+st.write("This application predicts the median house price in Boston using a trained Machine Learning model. Explore the data, visualize relationships, and get real-time predictions!")
 
-# Sidebar Navigation [cite: 34]
-st.sidebar.title("Navigation") [cite: 34]
-page = st.sidebar.radio("Go to", ["Data Exploration", "Visualizations", "Model Prediction", "Model Performance"]) [cite: 34]
+# Sidebar Navigation
+st.sidebar.title("Navigation")
+page = st.sidebar.radio("Go to", ["Data Exploration", "Visualizations", "Model Prediction", "Model Performance"])
 
 if page == "Data Exploration":
-    st.header("🔍 Data Exploration Section") [cite: 34]
-    st.write("Understand the structure and raw data of the Boston Housing dataset.") [cite: 34]
+    st.header("🔍 Data Exploration Section")
+    st.write("Understand the structure and raw data of the Boston Housing dataset.")
 
-    # Display dataset overview (shape, columns, data types) [cite: 35]
+    # Display dataset overview (shape, columns, data types)
     st.subheader("Dataset Overview")
     st.write(f"**Shape of the dataset:** {df.shape[0]} rows, {df.shape[1]} columns")
     st.write("**Columns and Data Types:**")
     st.dataframe(df.dtypes.rename('Data Type'))
 
-    # Show sample data [cite: 35]
+    # Show sample data
     st.subheader("Sample Data")
     st.dataframe(df.head())
 
-    # Interactive data filtering options [cite: 37]
+    # Interactive data filtering options
     st.subheader("Interactive Data Filtering")
     num_rows = st.slider("Number of rows to display", min_value=5, max_value=len(df), value=10)
     st.dataframe(df.sample(num_rows, random_state=42))
@@ -80,34 +81,33 @@ if page == "Data Exploration":
     st.dataframe(df.describe())
 
 elif page == "Visualizations":
-    st.header("📊 Visualizations Section") [cite: 38]
-    st.write("Explore relationships between features using interactive charts.") [cite: 38]
+    st.header("📊 Visualizations Section")
+    st.write("Explore relationships between features using interactive charts.")
 
-    # At least 3 different charts/plots [cite: 40]
-    st.subheader("1. Distribution of Median House Value (MEDV)")
+    # At least 3 different charts/plots
+    st.subheader("1. Distribution of Median House Value (medv)")
     fig, ax = plt.subplots()
-    sns.histplot(df['MEDV'], kde=True, ax=ax)
-    ax.set_title('Distribution of MEDV')
-    ax.set_xlabel('MEDV ($1000s)')
+    # Changed 'MEDV' to 'medv'
+    sns.histplot(df['medv'], kde=True, ax=ax)
+    ax.set_title('Distribution of medv')
+    ax.set_xlabel('medv ($1000s)')
     ax.set_ylabel('Frequency')
     st.pyplot(fig) # Display plot
 
-    st.subheader("2. Feature Relationship with MEDV (Scatter Plot)")
-    # Interactive visualisations using Streamlit widgets [cite: 41]
-    # Ensure selected feature is not 'MEDV' itself
-    feature_options = df.columns.drop('MEDV').tolist()
-    # Provide a default if the list is not empty
-    default_feature = feature_options[0] if feature_options else None
-    if 'RM' in feature_options:
-        default_feature = 'RM' # Prioritize 'RM' if available as a common feature
+    st.subheader("2. Feature Relationship with medv (Scatter Plot)")
+    # Interactive visualisations using Streamlit widgets
+    # Ensure selected feature is not 'medv' itself
+    feature_options = df.columns.drop('medv').tolist()
+    default_feature = 'RM' if 'RM' in feature_options else feature_options[0] # Prioritize 'RM' or first feature
     
     feature_x = st.selectbox("Select X-axis feature", feature_options, index=feature_options.index(default_feature) if default_feature else 0)
     
     fig_scatter, ax_scatter = plt.subplots()
-    sns.scatterplot(x=df[feature_x], y=df['MEDV'], ax=ax_scatter)
-    ax_scatter.set_title(f'{feature_x} vs MEDV')
+    # Changed 'MEDV' to 'medv'
+    sns.scatterplot(x=df[feature_x], y=df['medv'], ax=ax_scatter)
+    ax_scatter.set_title(f'{feature_x} vs medv')
     ax_scatter.set_xlabel(feature_x)
-    ax_scatter.set_ylabel('MEDV ($1000s)')
+    ax_scatter.set_ylabel('medv ($1000s)')
     st.pyplot(fig_scatter)
 
     st.subheader("3. Correlation Heatmap")
@@ -120,30 +120,32 @@ elif page == "Visualizations":
     # Using 'CHAS' as a categorical example
     if 'CHAS' in df.columns:
         fig_box, ax_box = plt.subplots()
-        sns.boxplot(x='CHAS', y='MEDV', data=df, ax=ax_box)
-        ax_box.set_title('MEDV by Charles River Proximity (CHAS)')
+        # Changed 'MEDV' to 'medv'
+        sns.boxplot(x='CHAS', y='medv', data=df, ax=ax_box)
+        ax_box.set_title('medv by Charles River Proximity (CHAS)')
         ax_box.set_xlabel('Proximity to Charles River (0 = No, 1 = Yes)')
-        ax_box.set_ylabel('MEDV ($1000s)')
+        ax_box.set_ylabel('medv ($1000s)')
         st.pyplot(fig_box)
     else:
         st.info("CHAS column not found for Box Plot example.")
 
 
 elif page == "Model Prediction":
-    st.header("🔮 Model Prediction Section") [cite: 42]
-    st.write("Enter the features of a house to predict its median value.") [cite: 42]
+    st.header("🔮 Model Prediction Section")
+    st.write("Enter the features of a house to predict its median value.")
 
-    # Input widgets for users to enter feature values [cite: 43]
+    # Input widgets for users to enter feature values
     st.subheader("Enter House Features:")
 
     inputs = {}
-    for feature in feature_names:
-        min_val = float(df[feature].min()) if not df[feature].isnull().all() else 0.0
-        max_val = float(df[feature].max()) if not df[feature].isnull().all() else 100.0
-        mean_val = float(df[feature].mean()) if not df[feature].isnull().all() else 50.0
+    for feature in feature_names: # Iterate through feature_names loaded from features.pkl
+        # Use .loc to avoid potential SettingWithCopyWarning if df is a slice
+        min_val = float(df.loc[:,feature].min()) if not df.loc[:,feature].isnull().all() else 0.0
+        max_val = float(df.loc[:,feature].max()) if not df.loc[:,feature].isnull().all() else 100.0
+        mean_val = float(df.loc[:,feature].mean()) if not df.loc[:,feature].isnull().all() else 50.0
 
-        # Use appropriate Streamlit widgets [cite: 51]
-        # Implement error handling for user inputs [cite: 52]
+        # Use appropriate Streamlit widgets
+        # Implement error handling for user inputs
         try:
             if feature == 'CHAS': # Binary feature
                 inputs[feature] = st.selectbox(
@@ -151,7 +153,7 @@ elif page == "Model Prediction":
                     options=[0, 1],
                     format_func=lambda x: "No (0)" if x == 0 else "Yes (1)"
                 )
-            elif feature == 'RAD' or feature == 'ZN': # Often discrete or integer-like
+            elif feature == 'RAD' or feature == 'ZN' or df[feature].dtype == 'int64': # Often discrete or integer-like
                  inputs[feature] = st.number_input(
                     f"**{feature}** (Range: {int(min_val)} - {int(max_val)}):",
                     min_value=int(min_val),
@@ -173,7 +175,7 @@ elif page == "Model Prediction":
             inputs[feature] = 0.0 # Fallback default
 
     if st.button("Predict House Price"):
-        # ⏳ Include loading states for long operations [cite: 53]
+        # Include loading states for long operations
         with st.spinner('Making prediction...'):
             try:
                 # Create a DataFrame from inputs ensuring column order matches training
@@ -184,12 +186,12 @@ elif page == "Model Prediction":
                 scaled_input = scaler.transform(input_df)
                 prediction = model.predict(scaled_input)[0]
 
-                # Real-time prediction display [cite: 44]
+                # Real-time prediction display
                 st.subheader("Prediction Result:")
                 st.success(f"The predicted median house value is: **${prediction:,.2f}** (in thousands)")
                 st.info("This is an estimated value based on the trained model.")
 
-                # Prediction confidence/probability (if applicable) [cite: 45]
+                # Prediction confidence/probability (if applicable)
                 st.markdown("---")
                 st.write("Note: For regression tasks, 'confidence' typically relates to prediction intervals or model error. This model's general performance can be seen in the 'Model Performance' section.")
 
@@ -199,15 +201,16 @@ elif page == "Model Prediction":
 
 
 elif page == "Model Performance":
-    st.header("📈 Model Performance Section") [cite: 46]
-    st.write("Review the evaluation metrics of the trained model.") [cite: 46]
+    st.header("📈 Model Performance Section")
+    st.write("Review the evaluation metrics of the trained model.")
 
-    # Display model evaluation metrics [cite: 47]
+    # Display model evaluation metrics
     st.subheader("Model Evaluation Metrics:")
 
     # Re-split data and make predictions for evaluation consistency
+    # Changed 'MEDV' to 'medv'
     X_full = df[feature_names] # Use only the features the model was trained on
-    y_full = df['MEDV']
+    y_full = df['medv']
     X_train_eval, X_test_eval, y_train_eval, y_test_eval = train_test_split(X_full, y_full, test_size=0.2, random_state=42)
     X_test_scaled_eval = scaler.transform(X_test_eval) # Apply the loaded scaler
 
@@ -222,7 +225,7 @@ elif page == "Model Performance":
     st.write(f"**R-squared (R²):** {r2:.2f}")
     st.info("Higher R-squared and lower MSE/RMSE indicate better model performance.")
 
-    # Relevant performance charts [cite: 48]
+    # Relevant performance charts
     st.subheader("Actual vs. Predicted Values Plot")
     fig_actual_pred, ax_actual_pred = plt.subplots(figsize=(10, 6))
     sns.scatterplot(x=y_test_eval, y=y_pred_eval, ax=ax_actual_pred, alpha=0.6)
@@ -230,8 +233,8 @@ elif page == "Model Performance":
     min_val = min(y_test_eval.min(), y_pred_eval.min())
     max_val = max(y_test_eval.max(), y_pred_eval.max())
     ax_actual_pred.plot([min_val, max_val], [min_val, max_val], 'r--', lw=2, label='Perfect Prediction')
-    ax_actual_pred.set_xlabel("Actual MEDV")
-    ax_actual_pred.set_ylabel("Predicted MEDV")
+    ax_actual_pred.set_xlabel("Actual medv") # Changed 'MEDV' to 'medv'
+    ax_actual_pred.set_ylabel("Predicted medv") # Changed 'MEDV' to 'medv'
     ax_actual_pred.set_title("Actual vs. Predicted Median House Values")
     ax_actual_pred.legend()
     st.pyplot(fig_actual_pred)
@@ -242,24 +245,24 @@ elif page == "Model Performance":
     fig_residuals, ax_residuals = plt.subplots(figsize=(10, 6))
     sns.scatterplot(x=y_pred_eval, y=residuals, ax=ax_residuals, alpha=0.6)
     ax_residuals.axhline(y=0, color='r', linestyle='--', lw=2)
-    ax_residuals.set_xlabel("Predicted MEDV")
+    ax_residuals.set_xlabel("Predicted medv") # Changed 'MEDV' to 'medv'
     ax_residuals.set_ylabel("Residuals (Actual - Predicted)")
     ax_residuals.set_title("Residuals Plot")
     st.pyplot(fig_residuals)
     st.markdown("Ideally, residuals should be randomly scattered around zero, with no clear pattern.")
 
-    # Model comparison results [cite: 49]
+    # Model comparison results
     st.subheader("Model Comparison (Context)")
     st.write("During the training phase, multiple algorithms were compared (e.g., Linear Regression, Random Forest Regressor). The currently deployed model was selected based on its superior performance (e.g., lower Mean Squared Error and higher R-squared) on the held-out test dataset.")
     st.write("For a detailed comparison and the training process, please refer to the `model_training.ipynb` Jupyter Notebook in the project's GitHub repository.")
 
-# Add documentation/help text for users [cite: 55]
+# Add documentation/help text for users
 st.sidebar.markdown("---")
 st.sidebar.info(
-    "This application is a demonstration for the 'Machine Learning Model Deployment with Streamlit' assignment[cite: 1, 2, 3]. "
+    "This application is a demonstration for the 'Machine Learning Model Deployment with Streamlit' assignment. "
     "Developed as part of the course requirements. "
 )
 
-# Apply consistent styling and layout [cite: 54]
+# Apply consistent styling and layout
 # Streamlit widgets and layout functions (st.title, st.header, st.subheader, st.write, st.columns)
 # inherently help in applying consistent styling.
