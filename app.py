@@ -8,7 +8,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split # Needed for model performance section (to re-split data)
 
 # Helper function to load model, scaler, and feature names
-@st.cache_resource # Cache the model loading for efficiency [cite: 53]
+@st.cache_resource # Cache the model loading for efficiency
 def load_model_and_scaler():
     try:
         # Load from the root directory of the deployed app
@@ -49,29 +49,29 @@ target_column_name = 'medv' # Make sure this matches the name in your CSV and no
 
 # --- Part 2: Streamlit Application Development ---
 
-# Title and Description [cite: 33, 34]
+# Title and Description
 st.title("🏡 Boston House Price Prediction App")
 st.write("This application predicts the median house price in Boston using a trained Machine Learning model. Explore the data, visualize relationships, and get real-time predictions!")
 
-# Sidebar Navigation [cite: 34]
+# Sidebar Navigation
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Data Exploration", "Visualizations", "Model Prediction", "Model Performance"])
 
 if page == "Data Exploration":
-    st.header("🔍 Data Exploration Section") [cite: 34]
-    st.write("Understand the structure and raw data of the Boston Housing dataset.") [cite: 34]
+    st.header("🔍 Data Exploration Section")
+    st.write("Understand the structure and raw data of the Boston Housing dataset.")
 
-    # Display dataset overview (shape, columns, data types) [cite: 35]
+    # Display dataset overview (shape, columns, data types)
     st.subheader("Dataset Overview")
     st.write(f"**Shape of the dataset:** {df.shape[0]} rows, {df.shape[1]} columns")
     st.write("**Columns and Data Types:**")
     st.dataframe(df.dtypes.rename('Data Type'))
 
-    # Show sample data [cite: 35]
+    # Show sample data
     st.subheader("Sample Data")
     st.dataframe(df.head())
 
-    # Interactive data filtering options [cite: 37]
+    # Interactive data filtering options
     st.subheader("Interactive Data Filtering")
     num_rows = st.slider("Number of rows to display", min_value=5, max_value=len(df), value=10)
     st.dataframe(df.sample(num_rows, random_state=42))
@@ -84,10 +84,10 @@ if page == "Data Exploration":
     st.dataframe(df.describe())
 
 elif page == "Visualizations":
-    st.header("📊 Visualizations Section") [cite: 38]
-    st.write("Explore relationships between features using interactive charts.") [cite: 38]
+    st.header("📊 Visualizations Section")
+    st.write("Explore relationships between features using interactive charts.")
 
-    # At least 3 different charts/plots [cite: 40]
+    # At least 3 different charts/plots
     st.subheader(f"1. Distribution of Median House Value ({target_column_name})")
     fig, ax = plt.subplots()
     sns.histplot(df[target_column_name], kde=True, ax=ax)
@@ -97,7 +97,7 @@ elif page == "Visualizations":
     st.pyplot(fig) # Display plot
 
     st.subheader(f"2. Feature Relationship with {target_column_name} (Scatter Plot)")
-    # Interactive visualisations using Streamlit widgets [cite: 41]
+    # Interactive visualisations using Streamlit widgets
     # Ensure selected feature is not the target column itself
     feature_options = [col for col in df.columns if col != target_column_name]
     default_feature = 'RM' if 'RM' in feature_options else (feature_options[0] if feature_options else None) # Prioritize 'RM' or first feature
@@ -133,10 +133,10 @@ elif page == "Visualizations":
 
 
 elif page == "Model Prediction":
-    st.header("🔮 Model Prediction Section") [cite: 42]
-    st.write("Enter the features of a house to predict its median value.") [cite: 42]
+    st.header("🔮 Model Prediction Section")
+    st.write("Enter the features of a house to predict its median value.")
 
-    # Input widgets for users to enter feature values [cite: 43]
+    # Input widgets for users to enter feature values
     st.subheader("Enter House Features:")
 
     inputs = {}
@@ -152,8 +152,8 @@ elif page == "Model Prediction":
             mean_val = 50.0
             st.warning(f"Feature '{feature}' not found in dataset or contains all NaNs. Using default ranges.")
 
-        # Use appropriate Streamlit widgets [cite: 51]
-        # Implement error handling for user inputs [cite: 52]
+        # Use appropriate Streamlit widgets
+        # Implement error handling for user inputs
         try:
             if feature == 'CHAS': # Binary feature
                 inputs[feature] = st.selectbox(
@@ -183,7 +183,7 @@ elif page == "Model Prediction":
             inputs[feature] = 0.0 # Fallback default
 
     if st.button("Predict House Price"):
-        # Include loading states for long operations [cite: 53]
+        # Include loading states for long operations
         with st.spinner('Making prediction...'):
             try:
                 # Create a DataFrame from inputs ensuring column order matches training
@@ -195,12 +195,12 @@ elif page == "Model Prediction":
                 scaled_input = scaler.transform(input_df)
                 prediction = model.predict(scaled_input)[0]
 
-                # Real-time prediction display [cite: 44]
+                # Real-time prediction display
                 st.subheader("Prediction Result:")
                 st.success(f"The predicted median house value is: **${prediction:,.2f}** (in thousands)")
                 st.info("This is an estimated value based on the trained model.")
 
-                # Prediction confidence/probability (if applicable) [cite: 45]
+                # Prediction confidence/probability (if applicable)
                 st.markdown("---")
                 st.write("Note: For regression tasks, 'confidence' typically relates to prediction intervals or model error. This model's general performance can be seen in the 'Model Performance' section.")
 
@@ -210,10 +210,10 @@ elif page == "Model Prediction":
 
 
 elif page == "Model Performance":
-    st.header("📈 Model Performance Section") [cite: 46]
-    st.write("Review the evaluation metrics of the trained model.") [cite: 46]
+    st.header("📈 Model Performance Section")
+    st.write("Review the evaluation metrics of the trained model.")
 
-    # Display model evaluation metrics [cite: 47]
+    # Display model evaluation metrics
     st.subheader("Model Evaluation Metrics:")
 
     # Re-split data and make predictions for evaluation consistency
@@ -236,7 +236,7 @@ elif page == "Model Performance":
         st.write(f"**R-squared (R²):** {r2:.2f}")
         st.info("Higher R-squared and lower MSE/RMSE indicate better model performance.")
 
-        # Relevant performance charts [cite: 48]
+        # Relevant performance charts
         st.subheader("Actual vs. Predicted Values Plot")
         fig_actual_pred, ax_actual_pred = plt.subplots(figsize=(10, 6))
         sns.scatterplot(x=y_test_eval, y=y_pred_eval, ax=ax_actual_pred, alpha=0.6)
@@ -262,20 +262,20 @@ elif page == "Model Performance":
         st.pyplot(fig_residuals)
         st.markdown("Ideally, residuals should be randomly scattered around zero, with no clear pattern.")
 
-        # Model comparison results [cite: 49]
+        # Model comparison results
         st.subheader("Model Comparison (Context)")
         st.write("During the training phase, multiple algorithms were compared (e.g., Linear Regression, Random Forest Regressor). The currently deployed model was selected based on its superior performance (e.g., lower Mean Squared Error and higher R-squared) on the held-out test dataset.")
         st.write("For a detailed comparison and the training process, please refer to the `model_training.ipynb` Jupyter Notebook in the project's GitHub repository.")
     else:
         st.warning("Could not perform model performance evaluation. Ensure the dataset contains all expected features and the target column.")
 
-# Add documentation/help text for users [cite: 55]
+# Add documentation/help text for users
 st.sidebar.markdown("---")
 st.sidebar.info(
-    "This application is a demonstration for the 'Machine Learning Model Deployment with Streamlit' assignment[cite: 1, 2, 3]. "
+    "This application is a demonstration for the 'Machine Learning Model Deployment with Streamlit' assignment. "
     "Developed as part of the course requirements. "
 )
 
-# Apply consistent styling and layout [cite: 54]
+# Apply consistent styling and layout
 # Streamlit widgets and layout functions (st.title, st.header, st.subheader, st.write, st.columns)
 # inherently help in applying consistent styling.
