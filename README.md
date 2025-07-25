@@ -129,10 +129,9 @@ streamlit run app.py
 This command will launch the Streamlit application and provide a local URL (e.g., http://localhost:8501) which will automatically open in your browser.
 
 ☁️ Deployment
-This application is designed for deployment on Streamlit Cloud.
+This application is designed for deployment on Streamlit Cloud.<br>
 
-Deployed Application URL: [Your Streamlit Cloud App URL Here]
-(Replace this placeholder with the actual URL after deployment.)
+Deployed Application URL: https://machine-learning-model-boston-housing-datasetdeployment-with-a.streamlit.app/ <br>
 
 🛠️ Technologies Used
 Python
