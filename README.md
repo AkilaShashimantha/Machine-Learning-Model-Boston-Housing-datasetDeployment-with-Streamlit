@@ -62,8 +62,8 @@ The Random Forest Regressor was selected as the best-performing model based on i
 📁 Project Structure
 The repository is organized as follows:
 
-your-project/
-├── app.py                      # Streamlit web application code
+your-project/<br>
+├── app.py                      # Streamlit web application code<br>
 ├── requirements.txt            # List of Python dependencies
 ├── model.pkl                   # Saved trained machine learning model
 ├── scaler.pkl                  # Saved StandardScaler object for feature scaling
@@ -80,6 +80,7 @@ To set up and run this project locally, follow these steps:
 Clone the repository:
 
 git clone https://github.com/AkilaShashimantha/Machine-Learning-Model-Boston-Housing-datasetDeployment-with-Streamlit.git
+
 cd your-project-name
 
 Create a virtual environment (recommended):
