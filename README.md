@@ -64,15 +64,15 @@ The repository is organized as follows:
 
 your-project/<br>
 ├── app.py                      # Streamlit web application code<br>
-├── requirements.txt            # List of Python dependencies
-├── model.pkl                   # Saved trained machine learning model
-├── scaler.pkl                  # Saved StandardScaler object for feature scaling
-├── features.pkl                # Saved list of feature names (for consistent input order)
-├── data/
-│   └── BostonHousing.csv       # The dataset file
-└── notebooks/
-    └── model_training.ipynb    # Jupyter Notebook for EDA, preprocessing, and model training
-└── README.md                   # This README file
+├── requirements.txt            # List of Python dependencies<br>
+├── model.pkl                   # Saved trained machine learning model<br>
+├── scaler.pkl                  # Saved StandardScaler object for feature scaling<br>
+├── features.pkl                # Saved list of feature names (for consistent input order)<br>
+├── data/<br>
+│   └── BostonHousing.csv       # The dataset file<br>
+└── notebooks/<br>
+    └── model_training.ipynb    # Jupyter Notebook for EDA, preprocessing, and model training<br>
+└── README.md                   # This README file<br>
 
 ⚙️ Installation
 To set up and run this project locally, follow these steps:
